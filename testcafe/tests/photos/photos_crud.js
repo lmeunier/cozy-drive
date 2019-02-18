@@ -1,62 +1,72 @@
 import { photosUser } from '../helpers/roles' //import roles for login
 import { TESTCAFE_PHOTOS_URL } from '../helpers/utils'
 import random from 'lodash/random'
-import Page from '../pages/photos-model'
+import TimelinePage from '../pages/photos-timeline-model'
+import Commons from '../pages/photos-commons'
 
-const page = new Page()
+const timelinePage = new TimelinePage()
+const commons = new Commons()
 
-fixture`PHOTOS - CRUD`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(async t => {
-  await t.useRole(photosUser)
-  await page.waitForLoading()
-  await page.initPhotosCount()
-})
-
+fixture`PHOTOS - CRUD`.page`${TESTCAFE_PHOTOS_URL}/`
+  .beforeEach(async t => {
+    console.group(`\n↳ ℹ️  Loggin & Initialization`)
+    await t.useRole(photosUser)
+    await timelinePage.waitForLoading()
+    await timelinePage.initPhotosCount()
+    console.groupEnd()
+  })
+  .afterEach(async () => {
+    console.groupEnd()
+  })
 test('Select 1 pic from Photos view', async () => {
+  console.group('↳ ℹ️  Select 1 pic from Photos view')
   //Selection bar shows up. It includes AddtoAlbun, Download and Delete buttons
-  await page.selectPhotos(1)
-  await page.checkPhotobar()
+  await commons.selectPhotos(1)
+  await timelinePage.checkPhotobar()
 })
 
 test('Select 3 pic from Photos view', async () => {
+  console.group('↳ ℹ️  Select 3 pic from Photos view')
   //Selection bar shows up. It includes AddtoAlbun, Download and Delete buttons
-  await page.selectPhotos(3)
-  await page.checkPhotobar()
+  await commons.selectPhotos(3)
+  await timelinePage.checkPhotobar()
 })
 
 test('Open 1st pic', async () => {
+  console.group('↳ ℹ️  Open 1st pic')
   //Right arrow shows up. Navigatio to other pics is OK, Closing pic (X or 'esc') is Ok
-  await page.openPhotoFullscreen(0)
-  await page.navigateToNextPhoto(0)
-  await page.closePhotoFullscreenX()
+  await timelinePage.openPhotoFullscreen(0)
+  await timelinePage.navigateToNextPhoto(0)
+  await timelinePage.closePhotoFullscreenX()
 
-  await page.openPhotoFullscreen(0)
-  await page.navigateToPrevPhoto(0)
-  await page.closePhotoFullscreenEsc()
+  await timelinePage.openPhotoFullscreen(0)
+  await timelinePage.navigateToPrevPhoto(0)
+  await timelinePage.closePhotoFullscreenEsc()
 })
 
 test('Open Last pic', async t => {
+  console.group('↳ ℹ️  Open Last pic')
   //Left arrow shows up. Navigatio to other pics is OK, Closing pic (X or 'esc') is Ok
+  await timelinePage.openPhotoFullscreen(t.ctx.allPhotosStartCount - 1)
+  await timelinePage.navigateToNextPhoto(t.ctx.allPhotosStartCount - 1)
+  await timelinePage.closePhotoFullscreenX()
 
-  await page.openPhotoFullscreen(t.ctx.allPhotosStartCount - 1)
-  await page.navigateToNextPhoto(t.ctx.allPhotosStartCount - 1)
-  await page.closePhotoFullscreenX()
-
-  await page.openPhotoFullscreen(t.ctx.allPhotosStartCount - 1)
-  await page.navigateToPrevPhoto(t.ctx.allPhotosStartCount - 1)
-  await page.closePhotoFullscreenEsc()
+  await timelinePage.openPhotoFullscreen(t.ctx.allPhotosStartCount - 1)
+  await timelinePage.navigateToPrevPhoto(t.ctx.allPhotosStartCount - 1)
+  await timelinePage.closePhotoFullscreenEsc()
 })
 
 test('Open a random pic (not first nor last)', async t => {
+  console.group('↳ ℹ️  Open a random pic (not first nor last)')
   //Both arrows show up. Navigatio to other pics is OK, Closing pic (X or 'esc') is Ok
   // We need at least 3 pics in our cozy for this test to pass
-
   const photoIndex = random(1, t.ctx.allPhotosStartCount - 2)
 
   console.log('Open random pic  > photoIndex ' + photoIndex)
-  await page.openPhotoFullscreen(photoIndex)
-  await page.navigateToNextPhoto(photoIndex)
-  await page.closePhotoFullscreenX()
+  await timelinePage.openPhotoFullscreen(photoIndex)
+  await timelinePage.navigateToNextPhoto(photoIndex)
+  await timelinePage.closePhotoFullscreenX()
 
-  await page.openPhotoFullscreen(photoIndex)
-  await page.navigateToPrevPhoto(photoIndex)
+  await timelinePage.openPhotoFullscreen(photoIndex)
+  await timelinePage.navigateToPrevPhoto(photoIndex)
 })

@@ -1,25 +1,21 @@
-//!FIXME Change selector (ID or react)
 import { Selector, t } from 'testcafe'
 import {
   getPageUrl,
   getElementWithTestId,
-  getElementWithTestItem,
   isExistingAndVisibile,
   checkAllImagesExists
 } from '../helpers/utils'
+import Commons from '../pages/photos-commons'
+const commons = new Commons()
 
 export default class Page {
   constructor() {
-    this.loading = getElementWithTestId('loading')
-    this.photoSection = getElementWithTestId('photo-section')
-    this.folderEmpty = getElementWithTestId('empty-folder')
     this.contentWrapper = getElementWithTestId('timeline-pho-content-wrapper')
 
     // Upload
     this.btnUpload = getElementWithTestId('upload-btn')
     this.divUpload = getElementWithTestId('upload-queue')
     this.divUploadSuccess = getElementWithTestId('upload-queue-success')
-    this.modalUpload = Selector('[class*="c-alert-wrapper"]')
 
     //thumbnails
     this.photoThumb = value => {
@@ -68,10 +64,13 @@ export default class Page {
     //Sidebar
     this.sidebar = Selector('[class*="pho-sidebar"]')
     this.btnNavToAlbum = getElementWithTestId('nav-to-albums')
+    this.photoBtnClose = Selector('[class*="pho-viewer-toolbar-close"]').find(
+      '[class*="c-btn"]'
+    )
   }
 
   async waitForLoading() {
-    await t.expect(this.loading.exists).notOk('Page still loading')
+    await t.expect(commons.loading.exists).notOk('Page still loading')
     await isExistingAndVisibile(this.contentWrapper, 'Content Wrapper')
   }
 
@@ -114,7 +113,7 @@ export default class Page {
       this.divUploadSuccess,
       'Upload pop-in successfull'
     )
-    await isExistingAndVisibile(this.modalUpload, 'Photo(s) uploaded')
+    await isExistingAndVisibile(commons.alertWrapper, 'Photo(s) uploaded')
     await t
       .expect(this.divUpload.innerText)
       .match(
@@ -123,7 +122,7 @@ export default class Page {
       )
     await t.takeScreenshot()
 
-    const allPhotosEndCount = await this.getPhotosCount('After')
+    const allPhotosEndCount = await commons.getPhotosCount('After')
 
     await t
       .expect(allPhotosEndCount)
@@ -159,7 +158,7 @@ export default class Page {
   }
 
   async checkPhotobar() {
-    await isExistingAndVisibile(this.barPhoto, 'Selection bar')
+    await isExistingAndVisibile(commons.barPhoto, 'Selection bar')
     await isExistingAndVisibile(
       this.barPhotoBtnAddtoalbum,
       'Button "Add to Album"'
@@ -174,11 +173,11 @@ export default class Page {
 
   async openPhotoFullscreen(index) {
     await isExistingAndVisibile(
-      this.photoThumb(index),
+      commons.photoThumb(index),
       `${index}th Photo thumb`
     )
 
-    await t.click(this.photoThumb(index))
+    await t.click(commons.photoThumb(index))
     await isExistingAndVisibile(this.photoFull, 'fullscreen photos')
   }
 
@@ -252,17 +251,16 @@ export default class Page {
   //@param { bool } isRemoveAll: true if all photos are supposed to be remove at the end
   async deletePhotos(numOfFiles, isRemoveAll) {
     await isExistingAndVisibile(this.barPhoto, 'Selection bar')
-
     console.log('Deleting ' + numOfFiles + ' picture(s)')
     await isExistingAndVisibile(this.barPhotoBtnDeleteOrRemove, 'Delete Button')
     await t.click(this.barPhotoBtnDeleteOrRemove)
 
-    await isExistingAndVisibile(this.modalDelete, 'Modal delete')
+    await isExistingAndVisibile(commons.modalDelete, 'Modal delete')
     await isExistingAndVisibile(
-      this.modalDeleteBtnDelete,
+      commons.modalDeleteBtnDelete,
       'Modal delete button Delete'
     )
-    await t.click(this.modalDeleteBtnDelete)
+    await t.click(commons.modalDeleteBtnDelete)
     await t.takeScreenshot()
 
     let allPhotosEndCount
@@ -273,18 +271,8 @@ export default class Page {
     } else {
       allPhotosEndCount = await this.getPhotosCount('After')
     }
-
     await t
       .expect(allPhotosEndCount)
       .eql(t.ctx.allPhotosStartCount - numOfFiles)
-  }
-
-  async goToAlbums() {
-    await isExistingAndVisibile(this.sidebar, 'Sidebar')
-    await isExistingAndVisibile(this.btnNavToAlbum, 'Album Button')
-    await t
-      .click(this.btnNavToAlbum)
-      .expect(getPageUrl())
-      .contains('albums')
   }
 }

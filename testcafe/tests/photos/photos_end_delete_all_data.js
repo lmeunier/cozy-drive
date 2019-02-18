@@ -1,40 +1,38 @@
 import { photosUser } from '../helpers/roles'
 import { TESTCAFE_PHOTOS_URL } from '../helpers/utils'
-import Page from '../pages/photos-model'
+
 import { IMG0, IMG1, IMG2, IMG3, IMG4 } from '../helpers/data'
 import { VisualReviewTestcafe } from '../helpers/visualreview-utils'
 
-const page = new Page()
+const timelinePage = new TimelinePage()
+const commons = new Commons()
 
 fixture`Delete all photos`.page`${TESTCAFE_PHOTOS_URL}/`
-  .before(async ctx => {
-    ctx.vr = new VisualReviewTestcafe({
-      projectName: 'PHOTOS',
-      suiteName: `fixture : delete photos`
-    })
-    await ctx.vr.start()
-  })
   .beforeEach(async t => {
+    console.group(`\n↳ ℹ️  Loggin & Initialization`)
     await t.useRole(photosUser)
-    await page.waitForLoading()
-    await page.initPhotosCount()
+    await timelinePage.waitForLoading()
+    await timelinePage.initPhotosCount()
+    console.groupEnd()
   })
-  .after(async ctx => {
-    await ctx.vr.checkRunStatus()
+  .afterEach(async () => {
+    console.groupEnd()
   })
 
-test('Deleting 1st pic on Timeline : Open up a modal, and confirm', async t => {
-  await page.selectPhotosByName([IMG0])
+test('Deleting 1st pic on Timeline : Open up a modal, and confirm', async () => {
+  console.group(
+    '↳ ℹ️  Deleting 1st pic on Timeline : Open up a modal, and confirm'
+  )
+  await commons.selectPhotos(1)
   //pic is removed
-  await page.deletePhotos(1)
-
-  await t.fixtureCtx.vr.takeScreenshotAndUpload('delete-1-pic.png')
+  await timelinePage.deletePhotos(1)
 })
 
-test('Deleting 4 pics on Timeline : Open up a modal, and confirm', async t => {
-  await page.selectPhotosByName([IMG1, IMG2, IMG3, IMG4])
+test('Deleting the 1st 4 pics on Timeline : Open up a modal, and confirm', async () => {
+  console.group(
+    '↳ ℹ️  Deleting the 1st 4 pics on Timeline : Open up a modal, and confirm'
+  )
+  await commons.selectPhotos(4)
   //pics are removed, there are no more pictures on  page
-  await page.deletePhotos(4, true)
-
-  await t.fixtureCtx.vr.takeScreenshotAndUpload('delete-4-pics.png')
+  await timelinePage.deletePhotos(4, true)
 })
