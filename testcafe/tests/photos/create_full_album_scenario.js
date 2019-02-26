@@ -89,5 +89,5 @@ test('Go to New2_ALBUM_DATE_TIME, and delete it', async () => {
   await photoAlbumsPage.goToAlbum(`New2_${ALBUM_DATE_TIME}`)
   await photoAlbumPage.deleteAlbum()
   await photoAlbumPage.waitForLoading()
-  await photoAlbumPage.checkEmptyAlbum() //There is no more album
+  await photoAlbumsPage.checkEmptyAlbum() //There is no more album
 })

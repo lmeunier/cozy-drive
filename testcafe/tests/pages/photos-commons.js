@@ -52,31 +52,15 @@ export default class Page {
   //photoCount still failed sometimes, so let's try twice
   async getPhotosCount(when) {
     await checkAllImagesExists()
-    let allPhotosCount = await this.tryGetPhotosCount(when)
-    //try a second time to defined allPhotosCount is 1st try failed
-    if (typeof allPhotosCount === 'undefined') {
-      allPhotosCount = await this.tryGetPhotosCount(when)
-    }
-    return allPhotosCount
-  }
+    await isExistingAndVisibile(this.photoSection, 'photo Section')
+    await isExistingAndVisibile(this.allPhotosWrapper, 'Picture wrapper')
+    await isExistingAndVisibile(this.allPhotos, 'Photo item(s)')
+    const allPhotosCount = await this.allPhotos.count
 
-  //@param {string} when : text for console.log
-  async tryGetPhotosCount(when) {
-    let allPhotosCount
-    if ((await this.folderEmpty.exists) && (await this.folderEmpty.visible)) {
-      allPhotosCount = 0
-    } else if (
-      (await this.photoSection.exists) &&
-      (await this.photoSection.visible)
-    ) {
-      await isExistingAndVisibile(this.allPhotosWrapper, 'Picture wrapper')
-      await isExistingAndVisibile(this.allPhotos, 'Photo item(s)')
-      allPhotosCount = await this.allPhotos.count
-    }
     console.log(`Number of pictures on page (${when} test):  ${allPhotosCount}`)
+
     return allPhotosCount
   }
-
   async selectPhotos(numOfFiles) {
     console.log('Selecting ' + numOfFiles + ' picture(s)')
     await isExistingAndVisibile(this.photoThumb(0), '1st Photo thumb')

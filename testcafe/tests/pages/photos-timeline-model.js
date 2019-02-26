@@ -2,8 +2,7 @@ import { Selector, t } from 'testcafe'
 import {
   getPageUrl,
   getElementWithTestId,
-  isExistingAndVisibile,
-  checkAllImagesExists
+  isExistingAndVisibile
 } from '../helpers/utils'
 import Commons from '../pages/photos-commons'
 const commons = new Commons()
@@ -85,21 +84,7 @@ export default class Page {
   }
 
   async initPhotosCount() {
-    t.ctx.allPhotosStartCount = await this.getPhotosCount('Before')
-  }
-
-  //@param {string} when : text for console.log
-  //photoCount still failed sometimes, so let's try twice
-  async getPhotosCount(when) {
-    await checkAllImagesExists()
-    await isExistingAndVisibile(this.photoSection, 'photo Section')
-    await isExistingAndVisibile(this.allPhotosWrapper, 'Picture wrapper')
-    await isExistingAndVisibile(this.allPhotos, 'Photo item(s)')
-    const allPhotosCount = await this.allPhotos.count
-
-    console.log(`Number of pictures on page (${when} test):  ${allPhotosCount}`)
-
-    return allPhotosCount
+    t.ctx.allPhotosStartCount = await commons.getPhotosCount('Before')
   }
 
   async uploadPhotos(files) {
@@ -250,7 +235,8 @@ export default class Page {
   //@param { number } numOfFiles : number of file to delete
   //@param { bool } isRemoveAll: true if all photos are supposed to be remove at the end
   async deletePhotos(numOfFiles, isRemoveAll) {
-    await isExistingAndVisibile(this.barPhoto, 'Selection bar')
+    await isExistingAndVisibile(commons.barPhoto, 'Selection bar')
+
     console.log('Deleting ' + numOfFiles + ' picture(s)')
     await isExistingAndVisibile(this.barPhotoBtnDeleteOrRemove, 'Delete Button')
     await t.click(this.barPhotoBtnDeleteOrRemove)
@@ -265,12 +251,13 @@ export default class Page {
 
     let allPhotosEndCount
     if (isRemoveAll) {
-      await isExistingAndVisibile(this.folderEmpty, 'Folder Empty')
+      await isExistingAndVisibile(commons.folderEmpty, 'Folder Empty')
       console.log(`Number of pictures on page (Before test): 0`)
       allPhotosEndCount = 0
     } else {
-      allPhotosEndCount = await this.getPhotosCount('After')
+      allPhotosEndCount = await commons.getPhotosCount('After')
     }
+
     await t
       .expect(allPhotosEndCount)
       .eql(t.ctx.allPhotosStartCount - numOfFiles)

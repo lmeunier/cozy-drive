@@ -109,11 +109,9 @@ export default class Page {
       .eql(albumName)
 
     if (photoNumber == 0) {
-      await isExistingAndVisibile(photoPage.folderEmpty, 'Folder Empty')
+      await isExistingAndVisibile(commons.folderEmpty, 'Folder Empty')
     } else {
-      const allPhotosAlbumCount = await photoPage.getPhotosCount(
-        'On Album page'
-      )
+      const allPhotosAlbumCount = await commons.getPhotosCount('On Album page')
       await t.expect(allPhotosAlbumCount).eql(photoNumber) //all expected photos are displayed
     }
   }
@@ -244,5 +242,19 @@ export default class Page {
       commons.alertWrapper,
       '"successfull" modal alert'
     )
+  }
+
+  async unshareAlbumPublicLink() {
+    await isExistingAndVisibile(this.toolbarAlbum, 'toolbarAlbum')
+    await isExistingAndVisibile(this.btnShare, `Share button`)
+    await t.click(this.btnShare)
+    await isExistingAndVisibile(this.divShareByLink, 'div Share by Link')
+    await isExistingAndVisibile(this.toggleShareLink, 'Toggle Share by Link')
+    await t
+      .click(this.toggleShareLink)
+      .expect(this.toggleShareLink.find('input').checked)
+      .notOk('toggle Link is checked')
+      .expect(this.copyBtnShareByLink.exist)
+      .notOk('Copy Link still exists')
   }
 }
