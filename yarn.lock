@@ -983,12 +983,14 @@
   dependencies:
     unicode-trie "^0.3.0"
 
-"@sentry/cli@1.35.4":
-  version "1.35.4"
-  resolved "https://registry.yarnpkg.com/@sentry/cli/-/cli-1.35.4.tgz#d89bc26a62baa33a8bf4991af04247bfd5093849"
-  integrity sha512-Rg9czbl/z9+ZPR1tOv/uFS0ShvnRxmEOgIHd4s8zZYzYWsihBe46drfWyOpvjgcSrMGxQPNdDZ3daEzb3u5vYA==
+"@sentry/cli@1.40.0":
+  version "1.40.0"
+  resolved "https://registry.yarnpkg.com/@sentry/cli/-/cli-1.40.0.tgz#ab6565034d63bb6dfa840954f16efb058578fbcb"
+  integrity sha512-xn9MnHPnH9d8/BnOCg9GubGhdXTv+aZ+4ax0YEsjQklq8u9GfFZVpBQJ0cykMUBup7+DHmyGGga8qcoO9ew0gw==
   dependencies:
+    fs-copy-file-sync "^1.1.1"
     https-proxy-agent "^2.2.1"
+    mkdirp "^0.5.1"
     node-fetch "^2.1.2"
     progress "2.0.0"
     proxy-from-env "^1.0.0"
@@ -6321,6 +6323,11 @@ fs-constants@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs-constants/-/fs-constants-1.0.0.tgz#6be0de9be998ce16af8afc24497b9ee9b7ccd9ad"
   integrity sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==
+
+fs-copy-file-sync@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/fs-copy-file-sync/-/fs-copy-file-sync-1.1.1.tgz#11bf32c096c10d126e5f6b36d06eece776062918"
+  integrity sha512-2QY5eeqVv4m2PfyMiEuy9adxNP+ajf+8AR05cEi+OAzPcOj90hvFImeZhTmKLBgSd9EvG33jsD7ZRxsx9dThkQ==
 
 fs-extra@7.0.1:
   version "7.0.1"
