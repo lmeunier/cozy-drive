@@ -17,7 +17,6 @@ async function runRunner() {
       'testcafe/tests/photos/create_empty_album_scenario.js',
       'testcafe/tests/photos/album_sharing_scenario.js',
 
-      'testcafe/tests/photos/album_sharing_scenario.js'
       //Scenario that just delete photos, so we don't need to do it in every test.
       'testcafe/tests/photos/photos_end_delete_all_data.js'
     ])
@@ -25,7 +24,7 @@ async function runRunner() {
     .browsers(['chrome:headless:emulation:cdpPort=9222 --start-maximized'])
 
     .screenshots(
-      'reports/screenshots/',
+      'reports/',
       true,
       '${DATE}_${TIME}/test-${TEST}-${FILE_INDEX}.png'
     )

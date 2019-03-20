@@ -22,24 +22,23 @@ let data = require('../helpers/data')
 //************************
 //Tests when authentified
 //************************
-fixture`Album link Sharing Scenario`.page`${TESTCAFE_PHOTOS_URL}/`
-  .beforeEach(async t => {
+fixture`Album link Sharing Scenario`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
+  async t => {
     console.group(`\n↳ ℹ️  Loggin & Initialization`)
     await t.useRole(photosUser)
     await timelinePage.waitForLoading()
     await timelinePage.initPhotosCount()
     console.groupEnd()
-  })
-  .afterEach(async () => {
-    console.groupEnd()
-  })
+  }
+)
 
 test('Go into Album view, and create new album with 3 photos', async () => {
   console.group('↳ ℹ️  Go into Album view, and create new album with 3 photos')
   await photosCommons.goToAlbums()
   await photoAlbumsPage.addNewAlbum(data.ALBUM_DATE_TIME, 3)
-  await photoAlbumPage.checkAlbumPage(data.ALBUM_DATE_TIME, 3)
   //we need to check the album page, just after the redirection from album creation, hence this step being in this test
+  await photoAlbumPage.checkAlbumPage(data.ALBUM_DATE_TIME, 3)
+  console.groupEnd()
 })
 
 test('Go into Album view, and share this album using', async () => {
@@ -55,6 +54,7 @@ test('Go into Album view, and share this album using', async () => {
     data.sharingLink = link
     console.log(`data.sharingLink : ` + data.sharingLink)
   }
+  console.groupEnd()
 })
 
 //************************
@@ -72,12 +72,11 @@ fixture`Photos : Access an album public link, download the file(s), and check th
   })
   .afterEach(async () => {
     await checkLocalFile(
-      `${data.DOWNLOAD_PATH}${data.ALBUM_DATE_TIME.toLowerCase()}.zip`
+      `${data.DOWNLOAD_PATH}/${data.ALBUM_DATE_TIME.toLowerCase()}.zip`
     )
     await deleteLocalFile(
-      `${data.DOWNLOAD_PATH}${data.ALBUM_DATE_TIME.toLowerCase()}.zip`
+      `${data.DOWNLOAD_PATH}/${data.ALBUM_DATE_TIME.toLowerCase()}.zip`
     )
-    console.groupEnd()
   })
 
 test(`[Desktop] Photos : Access an album public link, check the viewer, download the file(s), and check the 'create Cozy' link`, async t => {
@@ -94,6 +93,7 @@ test(`[Desktop] Photos : Access an album public link, check the viewer, download
     .click(publicAlbumPage.btnPublicDownload)
     .click(publicAlbumPage.btnPublicCreateCozy)
   await publicAlbumPage.checkCreateCozy()
+  console.groupEnd()
 })
 
 test(`[Mobile] Photos : Access an album public link, check the viewer, download the file(s), and check the 'create Cozy' link`, async t => {
@@ -113,69 +113,65 @@ test(`[Mobile] Photos : Access an album public link, check the viewer, download 
     .setNativeDialogHandler(() => true)
     .click(publicAlbumPage.btnMoreButton)
     .click(publicAlbumPage.btnPublicDownloadMobile)
-    .click(publicAlbumPage.btnPublicCreateCozy)
+    .click(publicAlbumPage.btnMoreButton)
+    .click(publicAlbumPage.btnPublicCreacteCozyMobile)
   await publicAlbumPage.checkCreateCozy()
 
   await t.maximizeWindow() //Back to desktop
+  console.groupEnd()
 })
 
 //************************
 //Tests when authentified
 //************************
-fixture`Album : Unshare public Link`.page`${TESTCAFE_PHOTOS_URL}/`
-  .beforeEach(async t => {
+fixture`Album : Unshare public Link`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
+  async t => {
     console.group(`\n↳ ℹ️  Loggin & Initialization`)
     await t.useRole(photosUser)
     await timelinePage.waitForLoading()
     await timelinePage.initPhotosCount()
     console.groupEnd()
-  })
-  .afterEach(async () => {
-    console.groupEnd()
-  })
+  }
+)
 
 test('Unshare Album', async () => {
   console.group('↳ ℹ️  Unshare Album')
   await photosCommons.goToAlbums()
   await photoAlbumsPage.goToAlbum(data.ALBUM_DATE_TIME)
   await photoAlbumPage.unshareAlbumPublicLink()
+  console.groupEnd()
 })
 
 //************************
 // Public (no authentification)
 //************************
 fixture`Photos : No Access to an old album public link`
-  .page`${TESTCAFE_PHOTOS_URL}/`
-  .beforeEach(async t => {
-    console.group(`\n↳ ℹ️  no Loggin (anonymous)`)
-    await t.useRole(Role.anonymous())
-    console.groupEnd()
-  })
-  .afterEach(async () => {
-    console.groupEnd()
-  })
+  .page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(async t => {
+  console.group(`\n↳ ℹ️  no Loggin (anonymous)`)
+  await t.useRole(Role.anonymous())
+  console.groupEnd()
+})
 
 test('No Access to an old album public link', async t => {
   console.group('↳ ℹ️  No Access to an old album public link')
   await t.navigateTo(data.sharingLink)
   await publicAlbumPage.waitForLoading()
   await publicAlbumPage.checkNotAvailable()
+  console.groupEnd()
 })
 
 //************************
 //Tests when authentified
 //************************
-fixture`Test clean up : delete album`.page`${TESTCAFE_PHOTOS_URL}/`
-  .beforeEach(async t => {
+fixture`Test clean up : delete album`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
+  async t => {
     console.group(`\n↳ ℹ️  Loggin & Initialization`)
     await t.useRole(photosUser)
     await timelinePage.waitForLoading()
     await timelinePage.initPhotosCount()
     console.groupEnd()
-  })
-  .afterEach(async () => {
-    console.groupEnd()
-  })
+  }
+)
 
 test('Go to ALBUM_DATE_TIME, and delete it', async () => {
   console.group(`↳ ℹ️  Go to ${data.ALBUM_DATE_TIME}, and delete it`)
@@ -184,4 +180,5 @@ test('Go to ALBUM_DATE_TIME, and delete it', async () => {
   await photoAlbumPage.deleteAlbum()
   await photoAlbumPage.waitForLoading()
   await photoAlbumsPage.checkEmptyAlbum() //There is no more album
+  console.groupEnd()
 })

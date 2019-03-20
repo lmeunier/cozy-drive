@@ -15,13 +15,18 @@ export default class Page {
 
     this.albumPublicLayout = getElementWithTestId('pho-public-layout')
     this.toolbarPublicAlbum = getElementWithTestId('pho-toolbar-album-public')
-    this.btnPublicCreateCozy = this.toolbarPublicAlbum
-      .find('[class*="c-btn"]')
-      .nth(0)
+    this.btnPublicCreateCozy = this.toolbarPublicAlbum.find(
+      '[class*="pho-public-mycozy"]'
+    )
+
     this.btnPublicDownload = getElementWithTestId('album-public-download')
     this.btnPublicDownloadMobile = getElementWithTestId(
       'album-public-download-mobile'
     )
+    this.btnPublicCreacteCozyMobile = getElementWithTestId(
+      'album-public-create-cozy-mobile'
+    )
+
     this.btnMoreButton = getElementWithTestId('more-button').find('button')
     this.innerPublicMoreMenu = Selector('[class*="c-menu__inner--opened"]')
     this.btnPublicDownloadMobile = getElementWithTestId(
@@ -48,13 +53,6 @@ export default class Page {
   }
 
   async checkActionMenuAlbumDesktop() {
-    //TODO https://trello.com/c/qwbIUoRk/1638-partage-par-lien-vue-publique-boutons-vs-liens
-    await t //Mobile elements don't exist/are not visible
-      .expect(this.btnMoreButton.visible)
-      .notOk('[...] Menu is visible')
-      .expect(this.btnPublicDownloadMobile.exists)
-      .notOk('Mobile download button exists')
-
     await isExistingAndVisibile(this.logo, 'Logo')
     await isExistingAndVisibile(this.toolbarPublicAlbum, 'toolbarPublicAlbum')
     await isExistingAndVisibile(
@@ -65,21 +63,13 @@ export default class Page {
   }
 
   async checkActionMenuAlbumMobile() {
-    //TODO https://trello.com/c/qwbIUoRk/1638-partage-par-lien-vue-publique-boutons-vs-liens
-    await t //desktop elements don't exist/are not visible
-      .expect(this.btnPublicDownload.visible)
-      .notOk('[...] Menu is visible')
-      .expect(this.logo.visible)
-      .notOk('[...] Logo is visible')
-
-    // same create cozy btn in desktop & mobile
-    await isExistingAndVisibile(
-      this.btnPublicCreateCozy,
-      'Create my Cozy Button'
-    )
     await isExistingAndVisibile(this.btnMoreButton, '[...] Menu')
     await t.click(this.btnMoreButton)
     await isExistingAndVisibile(this.innerPublicMoreMenu, 'inner [...] Menu')
+    await isExistingAndVisibile(
+      this.btnPublicCreacteCozyMobile,
+      'Create my Cozy Button (Mobile)'
+    )
     await isExistingAndVisibile(
       this.btnPublicDownloadMobile,
       'Mobile download button'

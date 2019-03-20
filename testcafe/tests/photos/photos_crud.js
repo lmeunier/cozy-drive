@@ -7,22 +7,20 @@ import Commons from '../pages/photos-commons'
 const timelinePage = new TimelinePage()
 const commons = new Commons()
 
-fixture`PHOTOS - CRUD`.page`${TESTCAFE_PHOTOS_URL}/`
-  .beforeEach(async t => {
-    console.group(`\n↳ ℹ️  Loggin & Initialization`)
-    await t.useRole(photosUser)
-    await timelinePage.waitForLoading()
-    await timelinePage.initPhotosCount()
-    console.groupEnd()
-  })
-  .afterEach(async () => {
-    console.groupEnd()
-  })
+fixture`PHOTOS - CRUD`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(async t => {
+  console.group(`\n↳ ℹ️  Loggin & Initialization`)
+  await t.useRole(photosUser)
+  await timelinePage.waitForLoading()
+  await timelinePage.initPhotosCount()
+  console.groupEnd()
+})
+
 test('Select 1 pic from Photos view', async () => {
   console.group('↳ ℹ️  Select 1 pic from Photos view')
   //Selection bar shows up. It includes AddtoAlbun, Download and Delete buttons
   await commons.selectPhotos(1)
   await timelinePage.checkPhotobar()
+  console.groupEnd()
 })
 
 test('Select 3 pic from Photos view', async () => {
@@ -30,6 +28,7 @@ test('Select 3 pic from Photos view', async () => {
   //Selection bar shows up. It includes AddtoAlbun, Download and Delete buttons
   await commons.selectPhotos(3)
   await timelinePage.checkPhotobar()
+  console.groupEnd()
 })
 
 test('Open 1st pic', async () => {
@@ -42,6 +41,7 @@ test('Open 1st pic', async () => {
   await timelinePage.openPhotoFullscreen(0)
   await timelinePage.navigateToPrevPhoto(0)
   await timelinePage.closePhotoFullscreenEsc()
+  console.groupEnd()
 })
 
 test('Open Last pic', async t => {
@@ -54,6 +54,7 @@ test('Open Last pic', async t => {
   await timelinePage.openPhotoFullscreen(t.ctx.allPhotosStartCount - 1)
   await timelinePage.navigateToPrevPhoto(t.ctx.allPhotosStartCount - 1)
   await timelinePage.closePhotoFullscreenEsc()
+  console.groupEnd()
 })
 
 test('Open a random pic (not first nor last)', async t => {
@@ -69,4 +70,5 @@ test('Open a random pic (not first nor last)', async t => {
 
   await timelinePage.openPhotoFullscreen(photoIndex)
   await timelinePage.navigateToPrevPhoto(photoIndex)
+  console.groupEnd()
 })

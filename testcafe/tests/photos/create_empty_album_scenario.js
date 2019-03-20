@@ -11,23 +11,21 @@ const photoAlbumPage = new AlbumPage()
 const photoAlbumsPage = new AlbumsPage()
 const photosCommons = new Commons()
 
-fixture`Create new empty album and add photos`.page`${TESTCAFE_PHOTOS_URL}/`
-  .beforeEach(async t => {
-    console.group(`\n↳ ℹ️  Loggin & Initialization`)
+fixture`Create new empty album and add photos`
+  .page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(async t => {
+  console.group(`\n↳ ℹ️  Loggin & Initialization`)
 
-    await t.useRole(photosUser)
-    await timelinePage.waitForLoading()
-    await timelinePage.initPhotosCount()
-    console.groupEnd()
-  })
-  .afterEach(async () => {
-    console.groupEnd()
-  })
+  await t.useRole(photosUser)
+  await timelinePage.waitForLoading()
+  await timelinePage.initPhotosCount()
+  console.groupEnd()
+})
 
 test('Go into Album view, and check that there is no album', async () => {
   console.group('↳ ℹ️  Go into Album view, and check that there is no album')
   await photosCommons.goToAlbums()
   await photoAlbumsPage.checkEmptyAlbum()
+  console.groupEnd()
 })
 
 test('Go into Album view, and create new empty album', async () => {
@@ -35,7 +33,7 @@ test('Go into Album view, and create new empty album', async () => {
   await photosCommons.goToAlbums()
   await photoAlbumsPage.addNewAlbum(ALBUM_DATE_TIME, 0)
   await photoAlbumPage.checkAlbumPage(ALBUM_DATE_TIME, 0)
-  //we need to check the album page, just after the redirection from album creation, hence this step being in this test
+  console.groupEnd()
 })
 
 test('Go to ALBUM_DATE_TIME, and rename it (exit by pressing "enter")', async () => {
@@ -49,6 +47,7 @@ test('Go to ALBUM_DATE_TIME, and rename it (exit by pressing "enter")', async ()
     exitWithEnter: true
   })
   await photoAlbumPage.checkAlbumPage(`New_${ALBUM_DATE_TIME}`, 0)
+  console.groupEnd()
 })
 
 test('Go to New_ALBUM_DATE_TIME, and rename it (exit by clicking away)', async () => {
@@ -64,6 +63,7 @@ test('Go to New_ALBUM_DATE_TIME, and rename it (exit by clicking away)', async (
     { exitWithEnter: false }
   )
   await photoAlbumPage.checkAlbumPage(`New2_${ALBUM_DATE_TIME}`, 0)
+  console.groupEnd()
 })
 
 test('Go to New2_ALBUM_DATE_TIME, and add 2 more photos', async () => {
@@ -73,6 +73,7 @@ test('Go to New2_ALBUM_DATE_TIME, and add 2 more photos', async () => {
   await photoAlbumPage.addPhotosToAlbum(`New2_${ALBUM_DATE_TIME}`, 0, 2)
   await photoAlbumPage.backToAlbumsList()
   await photoAlbumsPage.isAlbumExistsAndVisible(`New2_${ALBUM_DATE_TIME}`, 2)
+  console.groupEnd()
 })
 
 test('Go to New2_ALBUM_DATE_TIME, and remove the 1st photos', async () => {
@@ -82,6 +83,7 @@ test('Go to New2_ALBUM_DATE_TIME, and remove the 1st photos', async () => {
   await photosCommons.goToAlbums()
   await photoAlbumsPage.goToAlbum(`New2_${ALBUM_DATE_TIME}`)
   await photoAlbumPage.removePhoto(1)
+  console.groupEnd()
 })
 
 test('Go to New2_ALBUM_DATE_TIME, and delete it', async () => {
@@ -91,4 +93,5 @@ test('Go to New2_ALBUM_DATE_TIME, and delete it', async () => {
   await photoAlbumPage.deleteAlbum()
   await photoAlbumPage.waitForLoading()
   await photoAlbumsPage.checkEmptyAlbum() //There is no more album
+  console.groupEnd()
 })

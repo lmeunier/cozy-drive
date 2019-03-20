@@ -11,19 +11,19 @@ export class VisualReviewTestcafe extends VisualReview {
     this.options.protocol = 'https'
     this.options.hostname = VISUALREVIEW_INSTANCE
     this.options.compareSettings = {
-      precision: 4
+      precision: 40
     }
   }
 
-  async takeScreenshotAndUpload(imageName) {
-    await t.takeScreenshot(imageName)
+  async takeScreenshotAndUpload(screenshotsPath) {
+    await t.takeScreenshot(`${screenshotsPath}.png`)
 
     this.options.properties.os = await getNavigatorOs()
     this.options.properties.browser = await getNavigatorName()
     this.options.properties.resolution = await getResolution()
 
     //the path needs to be in const but i need to define the screenshots tree 1st
-    this.uploadScreenshot('./reports/screenshots/' + imageName)
+    this.uploadScreenshot(`./reports/${screenshotsPath}.png`)
   }
 
   async checkRunStatus() {

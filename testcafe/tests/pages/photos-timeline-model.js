@@ -16,37 +16,11 @@ export default class Page {
     this.divUpload = getElementWithTestId('upload-queue')
     this.divUploadSuccess = getElementWithTestId('upload-queue-success')
 
-    //thumbnails
-    this.photoThumb = value => {
-      return this.allPhotos.nth(value)
-    }
-
-    this.photoCheckbox = Selector(
-      '[class*="pho-photo-select"][data-input="checkbox"]'
-    )
-    this.photoThumbByName = value => {
-      return getElementWithTestItem(value)
-    }
-    this.photoThumbByNameCheckbox = value => {
-      return this.photoThumbByName(value).find(
-        '[class*="pho-photo-select"][data-input="checkbox"]'
-      )
-    }
-    this.photoToolbar = Selector(
-      '[class*="coz-selectionbar pho-viewer-toolbar-actions"]'
-    )
-
     //Top Option bar & Confirmation Modal
-    this.barPhoto = Selector('[class*="coz-selectionbar"]')
     //those buttons are defined in cozy-ui (SelectionBar), so we cannot add data-test-id on them
-    this.barPhotoBtnAddtoalbum = this.barPhoto.find('button').nth(0) //ADD TO ALBUM
-    this.barPhotoBtnDl = this.barPhoto.find('button').nth(1) //DOWNLOAD
-    this.barPhotoBtnDeleteOrRemove = this.barPhoto.find('button').nth(2) //DELETE OR REMOVE FROM ALBUM
-    this.modalDelete = Selector('[class*="c-modal"]').find('div')
-    this.modalDeleteBtnDelete = this.modalDelete.find('button').nth(2) //REMOVE
-
-    this.allPhotosWrapper = this.photoSection.find('[class^="pho-photo"]')
-    this.allPhotos = Selector('div').withAttribute('data-test-item')
+    this.barPhotoBtnAddtoalbum = commons.barPhoto.find('button').nth(0) //ADD TO ALBUM
+    this.barPhotoBtnDl = commons.barPhoto.find('button').nth(1) //DOWNLOAD
+    this.barPhotoBtnDeleteOrRemove = commons.barPhoto.find('button').nth(2) //DELETE OR REMOVE FROM ALBUM
 
     // Photo fullscreen
     this.photoFull = Selector('[class*="pho-viewer-imageviewer"]').find('img')
@@ -59,13 +33,6 @@ export default class Page {
       '[class*="pho-viewer-nav-arrow"]'
     )
     this.photoBtnClose = getElementWithTestId('btn-viewer-toolbar-close')
-
-    //Sidebar
-    this.sidebar = Selector('[class*="pho-sidebar"]')
-    this.btnNavToAlbum = getElementWithTestId('nav-to-albums')
-    this.photoBtnClose = Selector('[class*="pho-viewer-toolbar-close"]').find(
-      '[class*="c-btn"]'
-    )
   }
 
   async waitForLoading() {
@@ -73,14 +40,9 @@ export default class Page {
     await isExistingAndVisibile(this.contentWrapper, 'Content Wrapper')
   }
 
-  //We cannot be sure there is no photos on start because of drive testing.
   async initPhotoCountZero() {
-    //Add wait to be sure everything is loaded
-    await t.wait(3000)
-    if ((await this.folderEmpty.exists) && (await this.folderEmpty.visible)) {
-      console.log(`Number of pictures on page (Before test): 0`)
-      t.ctx.allPhotosStartCount = 0
-    } else this.initPhotosCount()
+    console.log(`Number of pictures on page (Before test): 0`)
+    t.ctx.allPhotosStartCount = 0
   }
 
   async initPhotosCount() {
@@ -106,40 +68,10 @@ export default class Page {
         'Numbers of pictures uploaded does not match'
       )
     await t.takeScreenshot()
-
     const allPhotosEndCount = await commons.getPhotosCount('After')
-
     await t
       .expect(allPhotosEndCount)
       .eql(t.ctx.allPhotosStartCount + numOfFiles)
-  }
-
-  async selectPhotos(numOfFiles) {
-    console.log('Selecting ' + numOfFiles + ' picture(s)')
-    await isExistingAndVisibile(this.photoThumb(0), '1st Photo thumb')
-    await t.hover(this.photoThumb(0)) //Only one 'hover' as all checkbox should be visible once the 1st checkbox is checked
-
-    for (let i = 0; i < numOfFiles; i++) {
-      await isExistingAndVisibile(this.photoThumb(i), `${i + 1}th Photo thumb`)
-      await t.click(this.photoCheckbox.nth(i))
-    }
-  }
-
-  async selectPhotosByName(NameArray) {
-    console.log('Selecting ' + NameArray.length + ' picture(s)')
-    await isExistingAndVisibile(
-      this.photoThumbByName(NameArray[0]),
-      `Photo thumb for ${NameArray[0]}`
-    )
-    await t.hover(this.photoThumbByName(NameArray[0])) //Only one 'hover' as all checkbox should be visible once the 1st checkbox is checked
-
-    for (let i = 0; i < NameArray.length; i++) {
-      await isExistingAndVisibile(
-        this.photoThumbByName(NameArray[i]),
-        `Photo thumb for ${NameArray[i]}`
-      )
-      await t.click(this.photoThumbByNameCheckbox(NameArray[i]))
-    }
   }
 
   async checkPhotobar() {

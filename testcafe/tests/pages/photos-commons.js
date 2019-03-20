@@ -4,7 +4,8 @@ import {
   getPageUrl,
   getElementWithTestId,
   isExistingAndVisibile,
-  checkAllImagesExists
+  checkAllImagesExists,
+  getElementWithTestItem
 } from '../helpers/utils'
 
 export default class Page {
@@ -27,10 +28,20 @@ export default class Page {
 
     //thumbnails & photos
     this.allPhotosWrapper = this.photoSection.find('[class^="pho-photo"]')
-    this.allPhotos = getElementWithTestId('pho-photo-item')
+    this.allPhotos = Selector('div').withAttribute('data-test-item')
+
     this.photoThumb = value => {
-      return Selector('[class*="pho-photo-item"]').nth(value)
+      return this.allPhotos.nth(value)
     }
+    this.photoThumbByName = value => {
+      return getElementWithTestItem(value)
+    }
+    this.photoThumbByNameCheckbox = value => {
+      return this.photoThumbByName(value).find(
+        '[class*="pho-photo-select"][data-input="checkbox"]'
+      )
+    }
+
     this.photoToolbar = Selector(
       '[class*="coz-selectionbar pho-viewer-toolbar-actions"]'
     )
@@ -49,7 +60,6 @@ export default class Page {
   }
 
   //@param {string} when : text for console.log
-  //photoCount still failed sometimes, so let's try twice
   async getPhotosCount(when) {
     await checkAllImagesExists()
     await isExistingAndVisibile(this.photoSection, 'photo Section')
@@ -61,6 +71,8 @@ export default class Page {
 
     return allPhotosCount
   }
+
+  //@param { number } numOfFiles : number of file to select
   async selectPhotos(numOfFiles) {
     console.log('Selecting ' + numOfFiles + ' picture(s)')
     await isExistingAndVisibile(this.photoThumb(0), '1st Photo thumb')
@@ -69,6 +81,24 @@ export default class Page {
     for (let i = 0; i < numOfFiles; i++) {
       await isExistingAndVisibile(this.photoThumb(i), `${i + 1}th Photo thumb`)
       await t.click(this.photoCheckbox.nth(i))
+    }
+  }
+
+  //@param { [string] } NameArray: files names to select
+  async selectPhotosByName(NameArray) {
+    console.log('Selecting ' + NameArray.length + ' picture(s)')
+    await isExistingAndVisibile(
+      this.photoThumbByName(NameArray[0]),
+      `Photo thumb for ${NameArray[0]}`
+    )
+    await t.hover(this.photoThumbByName(NameArray[0])) //Only one 'hover' as all checkbox should be visible once the 1st checkbox is checked
+
+    for (let i = 0; i < NameArray.length; i++) {
+      await isExistingAndVisibile(
+        this.photoThumbByName(NameArray[i]),
+        `Photo thumb for ${NameArray[i]}`
+      )
+      await t.click(this.photoThumbByNameCheckbox(NameArray[i]))
     }
   }
 }
