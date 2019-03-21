@@ -11,7 +11,7 @@ export class VisualReviewTestcafe extends VisualReview {
     this.options.protocol = 'https'
     this.options.hostname = VISUALREVIEW_INSTANCE
     this.options.compareSettings = {
-      precision: 40
+      precision: 50
     }
   }
 

@@ -2,49 +2,72 @@ import { Role } from 'testcafe'
 import { photosUser } from '../helpers/roles'
 import {
   TESTCAFE_PHOTOS_URL,
+  SLUG,
   deleteLocalFile,
   checkLocalFile,
   setDownloadPath
 } from '../helpers/utils'
+import { VisualReviewTestcafe } from '../helpers/visualreview-utils'
 import TimelinePage from '../pages/photos-timeline-model'
 import AlbumPage from '../pages/photos-album-model'
 import AlbumsPage from '../pages/photos-albums-model'
 import Commons from '../pages/photos-commons'
 import PublicAlbumPage from '../pages/photos-album-model-public'
+import PublicViewer from '../pages/photos-vr/public-viewer-model'
 
 const timelinePage = new TimelinePage()
 const photoAlbumPage = new AlbumPage()
 const photoAlbumsPage = new AlbumsPage()
 const photosCommons = new Commons()
 const publicAlbumPage = new PublicAlbumPage()
+const publicViewer = new PublicViewer()
+
 let data = require('../helpers/data')
+
+//Scenario const
+const FEATURE_PREFIX = 'AlbumSharingScenario'
+
+const FIXTURE_INIT = `${FEATURE_PREFIX} 1- Create and Share Album`
+const TEST_CREATE_ALBUM = `1-1 Create Album`
+const TEST_SHARE_ALBUM = `1-2 Share Album`
+
+const FIXTURE_PUBLIC_WITH_DL = `${FEATURE_PREFIX} 2- Go to public link and download files`
+const TEST_PUBLIC_ALBUM_DESKTOP = `2-1 Check public album on desktop`
+const TEST_PUBLIC_ALBUM_MOBILE = `2-1 Check public album on mobile`
+
+const FIXTURE_UNSHARE = `${FEATURE_PREFIX} 3- Unshare Album`
+const TEST_UNSHARE_ALBUM = `${FEATURE_PREFIX} 3-1 Unshare Album`
+
+const FIXTURE_PUBLIC_NO_ACCESS = `${FEATURE_PREFIX} 4- Go to public link without access`
+const TEST_PUBLIC_NO_ACCESS = `4-1 Check no access to old share`
+
+const FIXTURE_CLEANUP = `${FEATURE_PREFIX} 5- Cleanup Data (Remove album)`
+const TEST_DELETE_ALBUM = `5-1 Delete Album`
 
 //************************
 //Tests when authentified
 //************************
-fixture`Album link Sharing Scenario`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
-  async t => {
-    console.group(`\n↳ ℹ️  Loggin & Initialization`)
-    await t.useRole(photosUser)
-    await timelinePage.waitForLoading()
-    await timelinePage.initPhotosCount()
-    console.groupEnd()
-  }
-)
-
-test('Go into Album view, and create new album with 3 photos', async () => {
-  console.group('↳ ℹ️  Go into Album view, and create new album with 3 photos')
-  await photosCommons.goToAlbums()
-  await photoAlbumsPage.addNewAlbum(data.ALBUM_DATE_TIME, 3)
-  //we need to check the album page, just after the redirection from album creation, hence this step being in this test
-  await photoAlbumPage.checkAlbumPage(data.ALBUM_DATE_TIME, 3)
+fixture`${FIXTURE_INIT}`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(async t => {
+  console.group(`\n↳ ℹ️  Loggin & Initialization`)
+  await t.useRole(photosUser)
+  await timelinePage.waitForLoading()
+  await timelinePage.initPhotosCount()
   console.groupEnd()
 })
 
-test('Go into Album view, and share this album using', async () => {
-  console.group('↳ ℹ️  Go into Album view, and share this album using')
+test(`${TEST_CREATE_ALBUM}`, async () => {
+  console.group(`↳ ℹ️  ${FEATURE_PREFIX} : ${TEST_CREATE_ALBUM}`)
   await photosCommons.goToAlbums()
-  await photoAlbumsPage.goToAlbum(data.ALBUM_DATE_TIME)
+  await photoAlbumsPage.addNewAlbum(FEATURE_PREFIX, 3)
+  //we need to check the album page, just after the redirection from album creation, hence this step being in this test
+  await photoAlbumPage.checkAlbumPage(FEATURE_PREFIX, 3)
+  console.groupEnd()
+})
+
+test(`${TEST_SHARE_ALBUM}`, async () => {
+  console.group(`↳ ℹ️  ${FEATURE_PREFIX} : ${TEST_SHARE_ALBUM}`)
+  await photosCommons.goToAlbums()
+  await photoAlbumsPage.goToAlbum(FEATURE_PREFIX)
   await photoAlbumPage.shareAlbumPublicLink()
 
   const link = await photoAlbumPage.copyBtnShareByLink.getAttribute(
@@ -60,33 +83,58 @@ test('Go into Album view, and share this album using', async () => {
 //************************
 // Public (no authentification)
 //************************
-fixture`Photos : Access an album public link, download the file(s), and check the 'create Cozy' link`
-  .page`${TESTCAFE_PHOTOS_URL}/`
+fixture`${FIXTURE_PUBLIC_WITH_DL}`.page`${TESTCAFE_PHOTOS_URL}/`
+  .before(async ctx => {
+    ctx.vr = new VisualReviewTestcafe({
+      projectName: `${SLUG}`,
+      suiteName: `${FIXTURE_PUBLIC_WITH_DL}`
+    })
+    await ctx.vr.start()
+  })
   .beforeEach(async t => {
     console.group(
       `\n↳ ℹ️  no Loggin (anonymous) & DOWNLOAD_PATH initialization`
     )
     await t.useRole(Role.anonymous())
     await setDownloadPath(data.DOWNLOAD_PATH)
+    await t.navigateTo(data.sharingLink)
+    //Init count for navigation
+    t.ctx.totalFilesCount = await photosCommons.getPhotosCount('Before')
     console.groupEnd()
   })
   .afterEach(async () => {
+    console.log(
+      `↳ ℹ️  ${FEATURE_PREFIX} - Checking downloaded file for ${FEATURE_PREFIX.toLowerCase()}.zip`
+    )
     await checkLocalFile(
-      `${data.DOWNLOAD_PATH}/${data.ALBUM_DATE_TIME.toLowerCase()}.zip`
+      `${data.DOWNLOAD_PATH}/${FEATURE_PREFIX.toLowerCase()}.zip`
     )
     await deleteLocalFile(
-      `${data.DOWNLOAD_PATH}/${data.ALBUM_DATE_TIME.toLowerCase()}.zip`
+      `${data.DOWNLOAD_PATH}/${FEATURE_PREFIX.toLowerCase()}.zip`
     )
   })
+  .after(async ctx => {
+    await ctx.vr.checkRunStatus()
+  })
 
-test(`[Desktop] Photos : Access an album public link, check the viewer, download the file(s), and check the 'create Cozy' link`, async t => {
+test(`${TEST_PUBLIC_ALBUM_DESKTOP}`, async t => {
   console.group(
-    `↳ ℹ️  [Desktop] Photos : Access an album public link, check the viewer, download the file(s), and check the 'create Cozy' link`
+    `↳ ℹ️  ${FEATURE_PREFIX} : ${TEST_PUBLIC_ALBUM_DESKTOP} > Access an album public link, check the viewer, download the file(s), and check the 'create Cozy' link`
   )
-  await t.navigateTo(data.sharingLink)
   await publicAlbumPage.waitForLoading()
   await publicAlbumPage.checkActionMenuAlbumDesktop()
-  //TODO --> Check viewer https://trello.com/c/u5Uyeu31/1689-photos-visionneuse-album-photos-vue-publique
+
+  //Viewer
+  await publicViewer.checkPublicImageViewer_vr(
+    `${FEATURE_PREFIX}/${TEST_PUBLIC_ALBUM_DESKTOP}-1`,
+    0
+  )
+  await publicViewer.checkViewerNavigation_vr(
+    `${FEATURE_PREFIX}/${TEST_PUBLIC_ALBUM_DESKTOP}-2`,
+    0,
+    3
+  )
+
   await t
     .wait(3000) //!FIXME to remove after https://trello.com/c/IZfev6F1/1658-drive-public-share-impossible-de-t%C3%A9l%C3%A9charger-le-fichier is fixed
     .setNativeDialogHandler(() => true)
@@ -96,18 +144,28 @@ test(`[Desktop] Photos : Access an album public link, check the viewer, download
   console.groupEnd()
 })
 
-test(`[Mobile] Photos : Access an album public link, check the viewer, download the file(s), and check the 'create Cozy' link`, async t => {
+test(`${TEST_PUBLIC_ALBUM_MOBILE}`, async t => {
   console.group(
-    `↳ ℹ️  [Mobile] Photos : Access an album public link, check the viewer, download the file(s), and check the 'create Cozy' link`
+    `↳ ℹ️  ${FEATURE_PREFIX} : ${TEST_PUBLIC_ALBUM_MOBILE} > Access an album public link, check the viewer, download the file(s), and check the 'create Cozy' link`
   )
-  //Just download for now. button check after  https://trello.com/c/qwbIUoRk/1638-partage-par-lien-vue-publique-boutons-vs-liens)
   await t.resizeWindowToFitDevice('iPhone 6', {
     portraitOrientation: true
   })
   await t.navigateTo(data.sharingLink)
   await publicAlbumPage.waitForLoading()
   await publicAlbumPage.checkActionMenuAlbumMobile()
-  //TODO --> Check viewer https://trello.com/c/u5Uyeu31/1689-photos-visionneuse-album-photos-vue-publique
+
+  //Viewer
+  await publicViewer.checkPublicImageViewer_vr(
+    `${FEATURE_PREFIX}/${TEST_PUBLIC_ALBUM_MOBILE}-1`,
+    0
+  )
+  await publicViewer.checkViewerNavigation_vr(
+    `${FEATURE_PREFIX}/${TEST_PUBLIC_ALBUM_MOBILE}-2`,
+    0,
+    3
+  )
+
   await t
     .wait(3000) //!FIXME to remove after https://trello.com/c/IZfev6F1/1658-drive-public-share-impossible-de-t%C3%A9l%C3%A9charger-le-fichier is fixed
     .setNativeDialogHandler(() => true)
@@ -124,7 +182,7 @@ test(`[Mobile] Photos : Access an album public link, check the viewer, download 
 //************************
 //Tests when authentified
 //************************
-fixture`Album : Unshare public Link`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
+fixture`${FIXTURE_UNSHARE}`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
   async t => {
     console.group(`\n↳ ℹ️  Loggin & Initialization`)
     await t.useRole(photosUser)
@@ -134,10 +192,10 @@ fixture`Album : Unshare public Link`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
   }
 )
 
-test('Unshare Album', async () => {
-  console.group('↳ ℹ️  Unshare Album')
+test(`${TEST_UNSHARE_ALBUM}`, async () => {
+  console.group(`↳ ℹ️  ${FEATURE_PREFIX} : ${TEST_UNSHARE_ALBUM}`)
   await photosCommons.goToAlbums()
-  await photoAlbumsPage.goToAlbum(data.ALBUM_DATE_TIME)
+  await photoAlbumsPage.goToAlbum(FEATURE_PREFIX)
   await photoAlbumPage.unshareAlbumPublicLink()
   console.groupEnd()
 })
@@ -145,15 +203,16 @@ test('Unshare Album', async () => {
 //************************
 // Public (no authentification)
 //************************
-fixture`Photos : No Access to an old album public link`
-  .page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(async t => {
-  console.group(`\n↳ ℹ️  no Loggin (anonymous)`)
-  await t.useRole(Role.anonymous())
-  console.groupEnd()
-})
+fixture`${FIXTURE_PUBLIC_NO_ACCESS}`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
+  async t => {
+    console.group(`\n↳ ℹ️  no Loggin (anonymous)`)
+    await t.useRole(Role.anonymous())
+    console.groupEnd()
+  }
+)
 
-test('No Access to an old album public link', async t => {
-  console.group('↳ ℹ️  No Access to an old album public link')
+test(`${TEST_PUBLIC_NO_ACCESS}`, async t => {
+  console.group(`↳ ℹ️  ${FEATURE_PREFIX} : ${TEST_PUBLIC_NO_ACCESS}`)
   await t.navigateTo(data.sharingLink)
   await publicAlbumPage.waitForLoading()
   await publicAlbumPage.checkNotAvailable()
@@ -163,7 +222,7 @@ test('No Access to an old album public link', async t => {
 //************************
 //Tests when authentified
 //************************
-fixture`Test clean up : delete album`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
+fixture`${FIXTURE_CLEANUP}`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
   async t => {
     console.group(`\n↳ ℹ️  Loggin & Initialization`)
     await t.useRole(photosUser)
@@ -173,10 +232,10 @@ fixture`Test clean up : delete album`.page`${TESTCAFE_PHOTOS_URL}/`.beforeEach(
   }
 )
 
-test('Go to ALBUM_DATE_TIME, and delete it', async () => {
-  console.group(`↳ ℹ️  Go to ${data.ALBUM_DATE_TIME}, and delete it`)
+test(`${TEST_DELETE_ALBUM}`, async () => {
+  console.group(`↳ ℹ️  ${FEATURE_PREFIX} : ${TEST_DELETE_ALBUM}`)
   await photosCommons.goToAlbums()
-  await photoAlbumsPage.goToAlbum(`${data.ALBUM_DATE_TIME}`)
+  await photoAlbumsPage.goToAlbum(`${FEATURE_PREFIX}`)
   await photoAlbumPage.deleteAlbum()
   await photoAlbumPage.waitForLoading()
   await photoAlbumsPage.checkEmptyAlbum() //There is no more album
