@@ -95,7 +95,7 @@
     "visualreview-client": "git+https://github.com/cozy/VisualReview-node-client.git#v0.0.2"
   },
   "dependencies": {
-    "babel-preset-cozy-app": "1.2.2",
+    "babel-preset-cozy-app": "1.5.1",
     "classnames": "2.2.6",
     "copy-text-to-clipboard": "1.0.4",
     "cozy-bar": "6.18.0",
