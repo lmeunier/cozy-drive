@@ -4382,13 +4382,6 @@ cozy-client@^6.15.0:
     redux-thunk "2.3.0"
     sift "6.0.0"
 
-cozy-device-helper@1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/cozy-device-helper/-/cozy-device-helper-1.5.0.tgz#43cdb18a813202f5c9a9330897cf013c1c398b28"
-  integrity sha512-6YOyJ99NU0ipb1nQWSoOrJ5To1wEz41KkCpdthcI7D4nTFEqxT+42f7cpeIUb/nzU9cj4qB9VbK/ldVSRI1h3Q==
-  dependencies:
-    lodash "4.17.11"
-
 cozy-device-helper@1.6.3:
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/cozy-device-helper/-/cozy-device-helper-1.6.3.tgz#186cf0682921fa3ec7c2343d94fb84f317c992ba"
